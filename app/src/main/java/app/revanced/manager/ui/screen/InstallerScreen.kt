@@ -43,6 +43,8 @@ import app.revanced.manager.patcher.worker.Step
 import app.revanced.manager.ui.component.AppScaffold
 import app.revanced.manager.ui.component.AppTopBar
 import app.revanced.manager.ui.component.ArrowButton
+import app.revanced.manager.ui.component.InstallerDialog
+import app.revanced.manager.ui.component.PackageInstallerStatusFlag
 import app.revanced.manager.ui.viewmodel.InstallerViewModel
 import app.revanced.manager.util.APK_MIMETYPE
 import kotlin.math.floor
@@ -62,6 +64,10 @@ fun InstallerScreen(
     val steps by vm.progress.collectAsStateWithLifecycle()
     val canInstall by remember { derivedStateOf { patcherState == true && (vm.installedPackageName != null || !vm.isInstalling) } }
     var showInstallPicker by rememberSaveable { mutableStateOf(false) }
+
+    vm.installerStatus?.let {
+        InstallerDialog(PackageInstallerStatusFlag.fromValue(it))
+    }
 
     if (showInstallPicker)
         InstallPicker(

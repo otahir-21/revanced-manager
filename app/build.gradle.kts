@@ -158,4 +158,8 @@ dependencies {
 
     // Markdown
     implementation(libs.markdown.renderer)
+
+    // EnumUtil
+    implementation(libs.enumutil)
+    ksp(libs.enumutil.ksp)
 }

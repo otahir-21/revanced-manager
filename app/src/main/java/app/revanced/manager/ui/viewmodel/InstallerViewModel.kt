@@ -63,6 +63,8 @@ class InstallerViewModel(
     private val installedAppRepository: InstalledAppRepository by inject()
     private val rootInstaller: RootInstaller by inject()
 
+    var installerStatus by mutableStateOf<Int?>(null)
+
     val packageName: String = input.selectedApp.packageName
     private val tempDir = fs.tempDir.resolve("installer").also {
         it.deleteRecursively()
@@ -132,10 +134,8 @@ class InstallerViewModel(
             when (intent?.action) {
                 InstallService.APP_INSTALL_ACTION -> {
                     val pmStatus = intent.getIntExtra(InstallService.EXTRA_INSTALL_STATUS, -999)
-                    val extra = intent.getStringExtra(InstallService.EXTRA_INSTALL_STATUS_MESSAGE)!!
 
                     if (pmStatus == PackageInstaller.STATUS_SUCCESS) {
-                        app.toast(app.getString(R.string.install_app_success))
                         installedPackageName =
                             intent.getStringExtra(InstallService.EXTRA_PACKAGE_NAME)
                         viewModelScope.launch {
@@ -147,12 +147,9 @@ class InstallerViewModel(
                                 input.selectedPatches
                             )
                         }
-                    } else {
-                        app.toast(app.getString(R.string.install_app_fail, extra))
                     }
-                }
 
-                UninstallService.APP_UNINSTALL_ACTION -> {
+                    installerStatus = pmStatus
                 }
             }
         }
