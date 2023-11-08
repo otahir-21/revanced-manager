@@ -302,4 +302,25 @@
     <string name="dismiss_temporary">Not now</string>
     <string name="update_available">New update available</string>
     <string name="update_available_description">A new version (%s) is available for download.</string>
+
+    <string name="installer_result_failed">Failed to install</string>
+    <string name="installer_result_cancelled">Cancelled</string>
+    <string name="installer_result_blocked">Blocked</string>
+    <string name="installer_result_conflict">Conflict</string>
+    <string name="installer_result_incompatible">Incompatible</string>
+    <string name="installer_result_invalid">Invalid</string>
+    <string name="installer_result_storage_issue">Storage issue</string>
+    <string name="installer_result_timeout">Timeout</string>
+    <string name="installer_result_success">Success</string>
+    <string name="installer_result_unknown">Unknown</string>
+
+    <string name="installer_result_failed_description">The installation failed for an unknown reason.</string>
+    <string name="installer_result_aborted_description">The installation was manually cancelled.</string>
+    <string name="installer_result_blocked_description">The installation was blocked.</string>
+    <string name="installer_result_conflict_description">An existing installation of the app prevents the installation. Uninstall the app and try again?</string>
+    <string name="installer_result_incompatible_description">The app is incompatible with this device.</string>
+    <string name="installer_result_invalid_description">The app is invalid.</string>
+    <string name="installer_result_storage_issue_description">The app could not be installed due to insufficient storage.</string>
+    <string name="installer_result_timeout_description">The installation took too long.</string>
+    <string name="installer_result_success_description">The app was successfully installed.</string>
 </resources>

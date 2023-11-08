@@ -44,7 +44,6 @@ import app.revanced.manager.ui.component.AppScaffold
 import app.revanced.manager.ui.component.AppTopBar
 import app.revanced.manager.ui.component.ArrowButton
 import app.revanced.manager.ui.component.InstallerDialog
-import app.revanced.manager.ui.component.PackageInstallerStatusFlag
 import app.revanced.manager.ui.viewmodel.InstallerViewModel
 import app.revanced.manager.util.APK_MIMETYPE
 import kotlin.math.floor
@@ -65,15 +64,15 @@ fun InstallerScreen(
     val canInstall by remember { derivedStateOf { patcherState == true && (vm.installedPackageName != null || !vm.isInstalling) } }
     var showInstallPicker by rememberSaveable { mutableStateOf(false) }
 
-    vm.installerStatus?.let {
-        InstallerDialog(PackageInstallerStatusFlag.fromValue(it))
-    }
-
     if (showInstallPicker)
         InstallPicker(
             onDismiss = { showInstallPicker = false },
             onConfirm = { vm.install(it) }
         )
+
+    vm.installerStatus?.let { flag ->
+        InstallerDialog(flag, TODO(), TODO())
+    }
 
     AppScaffold(
         topBar = {
@@ -99,7 +98,12 @@ fun InstallerScreen(
                         if (canInstall) {
                             ExtendedFloatingActionButton(
                                 text = { Text(stringResource(vm.appButtonText)) },
-                                icon = { Icon(Icons.Outlined.FileDownload, stringResource(id = R.string.install_app)) },
+                                icon = {
+                                    Icon(
+                                        Icons.Outlined.FileDownload,
+                                        stringResource(id = R.string.install_app)
+                                    )
+                                },
                                 containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                                 elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
                                 onClick = {
