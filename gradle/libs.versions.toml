@@ -26,8 +26,8 @@ coil = "2.4.0"
 app-icon-loader-coil = "1.5.0"
 skrapeit = "1.2.2"
 libsu = "5.2.0"
-enumutil = "1.0.0"
-enumutil-ksp = "1.0.0"
+enumutil = "1.1.0"
+enumutil-ksp = "1.1.0"
 
 [libraries]
 # AndroidX Core

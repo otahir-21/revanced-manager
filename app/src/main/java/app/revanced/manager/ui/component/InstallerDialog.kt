@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
+import com.github.materiiapps.enumutil.FromValue
 
 private typealias InstallerDialogButtonHandler = (() -> Unit)?
 private typealias InstallerDialogButton = @Composable (handler: InstallerDialogButtonHandler) -> Unit
@@ -32,7 +33,7 @@ fun InstallerDialog(
     dismissButtonHandler: InstallerDialogButtonHandler = null,
 ) {
     InstallerDialog(
-        DialogKind.fromValue(statusFlag),
+        DialogKind.fromValue(statusFlag) ?: DialogKind.FAILURE,
         confirmButtonHandler,
         dismissButtonHandler,
     )
@@ -74,8 +75,7 @@ fun InstallerDialog(
     )
 }
 
-// Use once https://github.com/MateriiApps/enumutil-kt/issues/1 is closed:
-// @FromValue
+@FromValue("flag")
 enum class DialogKind(
     internal val flag: Int,
     internal val title: Int,
@@ -144,23 +144,6 @@ enum class DialogKind(
         TextButton(onClick = handler ?: { }) { Text(stringResource(id)) }
     }
 
-    // region Workaround until https://github.com/MateriiApps/enumutil-kt/issues/1 is closed
-
-    companion object {
-        fun fromValue(statusFlag: Int) = when (statusFlag) {
-            FAILURE.flag -> FAILURE
-            FAILURE_ABORTED.flag -> FAILURE_ABORTED
-            FAILURE_BLOCKED.flag -> FAILURE_BLOCKED
-            FAILURE_CONFLICT.flag -> FAILURE_CONFLICT
-            FAILURE_INCOMPATIBLE.flag -> FAILURE_INCOMPATIBLE
-            FAILURE_INVALID.flag -> FAILURE_INVALID
-            FAILURE_STORAGE.flag -> FAILURE_STORAGE
-            SUCCESS.flag -> SUCCESS
-            else -> if (Build.VERSION.SDK_INT >= 34 && statusFlag == FAILURE_TIMEOUT.flag)
-                FAILURE_TIMEOUT
-            else throw IllegalArgumentException("Unknown flag: $statusFlag")
-        }
-    }
-
-    // endregion
+    // This is needed in order to have static extensions for @FromValue
+    companion object
 }
