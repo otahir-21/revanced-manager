@@ -64,6 +64,7 @@ class InstallerViewModel(
     private val rootInstaller: RootInstaller by inject()
 
     var installerStatus by mutableStateOf<Int?>(null)
+    var showInstallerDialog by mutableStateOf(false)
 
     val packageName: String = input.selectedApp.packageName
     private val tempDir = fs.tempDir.resolve("installer").also {
@@ -150,16 +151,41 @@ class InstallerViewModel(
                     }
 
                     installerStatus = pmStatus
+                    showInstallerDialog = true
+                }
+            }
+        }
+    }
+
+    private val uninstallBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                UninstallService.APP_UNINSTALL_ACTION -> {
+                    val extraStatus =
+                        intent.getIntExtra(UninstallService.EXTRA_UNINSTALL_STATUS, -999)
+                    val extraStatusMessage =
+                        intent.getStringExtra(UninstallService.EXTRA_UNINSTALL_STATUS_MESSAGE)
+
+                    if (extraStatus != PackageInstaller.STATUS_FAILURE_ABORTED) {
+                        app.toast(app.getString(R.string.uninstall_app_fail, extraStatusMessage))
+                    }
                 }
             }
         }
     }
 
     init {
-        ContextCompat.registerReceiver(app, installBroadcastReceiver, IntentFilter().apply {
-            addAction(InstallService.APP_INSTALL_ACTION)
-            addAction(UninstallService.APP_UNINSTALL_ACTION)
-        }, ContextCompat.RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(
+            app, installBroadcastReceiver,
+            IntentFilter(InstallService.APP_INSTALL_ACTION),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+
+        ContextCompat.registerReceiver(
+            app, uninstallBroadcastReceiver,
+            IntentFilter(UninstallService.APP_UNINSTALL_ACTION),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     fun exportLogs(context: Context) {
@@ -176,6 +202,7 @@ class InstallerViewModel(
     override fun onCleared() {
         super.onCleared()
         app.unregisterReceiver(installBroadcastReceiver)
+        app.unregisterReceiver(uninstallBroadcastReceiver)
         workManager.cancelWorkById(patcherWorkerId)
 
         when (val selectedApp = input.selectedApp) {
@@ -210,6 +237,14 @@ class InstallerViewModel(
             }
             app.toast(app.getString(R.string.save_apk_success))
         }
+    }
+
+    fun reinstall() = viewModelScope.launch {
+        pm.getPackageInfo(outputFile)?.packageName?.let { pm.uninstallPackage(it) }
+            ?: throw Exception("Failed to load application info")
+
+        pm.uninstallPackage(packageName)
+        pm.installApp(listOf(outputFile))
     }
 
     fun install(installType: InstallType) = viewModelScope.launch {

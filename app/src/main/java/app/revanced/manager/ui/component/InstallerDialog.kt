@@ -1,7 +1,6 @@
 package app.revanced.manager.ui.component
 
 import android.content.pm.PackageInstaller
-import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -21,37 +20,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
+import app.revanced.manager.ui.viewmodel.InstallerViewModel
 import com.github.materiiapps.enumutil.FromValue
 
-private typealias InstallerDialogButtonHandler = (() -> Unit)?
-private typealias InstallerDialogButton = @Composable (handler: InstallerDialogButtonHandler) -> Unit
+private typealias InstallerDialogButtonHandler = ((vm: InstallerViewModel) -> Unit)
+private typealias InstallerDialogButton = @Composable (vm: InstallerViewModel) -> Unit
+
 
 @Composable
 fun InstallerDialog(
-    statusFlag: Int,
-    confirmButtonHandler: InstallerDialogButtonHandler = null,
-    dismissButtonHandler: InstallerDialogButtonHandler = null,
+    vm: InstallerViewModel,
 ) {
-    InstallerDialog(
-        DialogKind.fromValue(statusFlag) ?: DialogKind.FAILURE,
-        confirmButtonHandler,
-        dismissButtonHandler,
-    )
-}
+    val dialogKind = DialogKind.fromValue(vm.installerStatus!!) ?: DialogKind.FAILURE
 
-@Composable
-fun InstallerDialog(
-    dialogKind: DialogKind = DialogKind.SUCCESS,
-    confirmButtonHandler: InstallerDialogButtonHandler = null,
-    dismissButtonHandler: InstallerDialogButtonHandler = null,
-) {
     AlertDialog(
         onDismissRequest = {},
         confirmButton = {
-            dialogKind.confirmButton(confirmButtonHandler)
+            dialogKind.confirmButton(vm)
         },
         dismissButton = {
-            dialogKind.dismissButton(dismissButtonHandler)
+            dialogKind.dismissButton?.invoke(vm)
         },
         icon = {
             Icon(dialogKind.icon, null)
@@ -81,45 +69,53 @@ enum class DialogKind(
     internal val title: Int,
     @StringRes internal val contentStringResId: Int,
     internal val icon: ImageVector = Icons.Outlined.ErrorOutline,
-    @StringRes confirmButtonStringResId: Int = R.string.save_apk,
-    @StringRes dismissButtonStringResId: Int = R.string.cancel
+    internal val confirmButton: InstallerDialogButton,
+    internal val dismissButton: InstallerDialogButton? = null,
 ) {
     FAILURE(
         flag = PackageInstaller.STATUS_FAILURE,
         title = R.string.installer_result_failed,
         contentStringResId = R.string.installer_result_failed_description,
+        confirmButton = installerDialogButton(R.string.ok),
     ),
     FAILURE_ABORTED(
         flag = PackageInstaller.STATUS_FAILURE_ABORTED,
         title = R.string.installer_result_cancelled,
         contentStringResId = R.string.installer_result_aborted_description,
+        confirmButton = installerDialogButton(R.string.ok),
     ),
     FAILURE_BLOCKED(
         flag = PackageInstaller.STATUS_FAILURE_BLOCKED,
         title = R.string.installer_result_blocked,
         contentStringResId = R.string.installer_result_blocked_description,
+        confirmButton = installerDialogButton(R.string.ok),
     ),
     FAILURE_CONFLICT(
         flag = PackageInstaller.STATUS_FAILURE_CONFLICT,
         title = R.string.installer_result_conflict,
         contentStringResId = R.string.installer_result_conflict_description,
-        confirmButtonStringResId = R.string.uninstall,
+        confirmButton = installerDialogButton(R.string.installer_reinstall) { vm ->
+            vm.reinstall()
+        },
+        dismissButton = installerDialogButton(R.string.cancel),
     ),
     FAILURE_INCOMPATIBLE(
         flag = PackageInstaller.STATUS_FAILURE_INCOMPATIBLE,
         title = R.string.installer_result_incompatible,
         contentStringResId = R.string.installer_result_incompatible_description,
+        confirmButton = installerDialogButton(R.string.ok),
     ),
     FAILURE_INVALID(
         flag = PackageInstaller.STATUS_FAILURE_INVALID,
         title = R.string.installer_result_invalid,
         contentStringResId = R.string.installer_result_invalid_description,
+        confirmButton = installerDialogButton(R.string.ok),
     ),
     FAILURE_STORAGE(
         flag = PackageInstaller.STATUS_FAILURE_STORAGE,
         title = R.string.installer_result_storage_issue,
         contentStringResId = R.string.installer_result_storage_issue_description,
-        confirmButtonStringResId = R.string.ok,
+        confirmButton = installerDialogButton(R.string.ok),
     ),
 
     @RequiresApi(34)
@@ -127,23 +123,26 @@ enum class DialogKind(
         flag = PackageInstaller.STATUS_FAILURE_TIMEOUT,
         title = R.string.installer_result_timeout,
         contentStringResId = R.string.installer_result_timeout_description,
-        dismissButtonStringResId = R.string.cancel
+        confirmButton = installerDialogButton(R.string.ok),
     ),
     SUCCESS(
         flag = PackageInstaller.STATUS_SUCCESS,
         title = R.string.installer_result_success,
         contentStringResId = R.string.installer_result_success_description,
         icon = Icons.Outlined.Check,
-        confirmButtonStringResId = R.string.ok,
+        confirmButton = installerDialogButton(R.string.ok),
     );
-
-    internal val confirmButton = installerDialogButton(confirmButtonStringResId)
-    internal val dismissButton = installerDialogButton(dismissButtonStringResId)
-
-    private fun installerDialogButton(@StringRes id: Int): InstallerDialogButton = { handler ->
-        TextButton(onClick = handler ?: { }) { Text(stringResource(id)) }
-    }
 
     // This is needed in order to have static extensions for @FromValue
     companion object
+}
+
+private fun installerDialogButton(
+    @StringRes buttonStringResId: Int,
+    handler: InstallerDialogButtonHandler = { },
+): InstallerDialogButton = { vm ->
+    TextButton(onClick = {
+        vm.showInstallerDialog = false
+        handler(vm)
+    }) { Text(stringResource(buttonStringResId)) }
 }

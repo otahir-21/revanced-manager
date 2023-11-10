@@ -70,9 +70,8 @@ fun InstallerScreen(
             onConfirm = { vm.install(it) }
         )
 
-    vm.installerStatus?.let { flag ->
-        InstallerDialog(flag, TODO(), TODO())
-    }
+    if (vm.showInstallerDialog)
+        InstallerDialog(vm)
 
     AppScaffold(
         topBar = {
