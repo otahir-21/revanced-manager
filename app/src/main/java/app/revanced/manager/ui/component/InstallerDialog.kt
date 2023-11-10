@@ -64,13 +64,13 @@ fun InstallerDialog(
 }
 
 @FromValue("flag")
-enum class DialogKind(
-    internal val flag: Int,
-    internal val title: Int,
-    @StringRes internal val contentStringResId: Int,
-    internal val icon: ImageVector = Icons.Outlined.ErrorOutline,
-    internal val confirmButton: InstallerDialogButton,
-    internal val dismissButton: InstallerDialogButton? = null,
+internal enum class DialogKind(
+    val flag: Int,
+    val title: Int,
+    @StringRes val contentStringResId: Int,
+    val icon: ImageVector = Icons.Outlined.ErrorOutline,
+    val confirmButton: InstallerDialogButton,
+    val dismissButton: InstallerDialogButton? = null,
 ) {
     FAILURE(
         flag = PackageInstaller.STATUS_FAILURE,
