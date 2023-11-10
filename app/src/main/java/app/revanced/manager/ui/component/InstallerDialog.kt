@@ -69,26 +69,23 @@ internal enum class DialogKind(
     val title: Int,
     @StringRes val contentStringResId: Int,
     val icon: ImageVector = Icons.Outlined.ErrorOutline,
-    val confirmButton: InstallerDialogButton,
+    val confirmButton: InstallerDialogButton = installerDialogButton(R.string.ok),
     val dismissButton: InstallerDialogButton? = null,
 ) {
     FAILURE(
         flag = PackageInstaller.STATUS_FAILURE,
         title = R.string.installer_result_failed,
         contentStringResId = R.string.installer_result_failed_description,
-        confirmButton = installerDialogButton(R.string.ok),
     ),
     FAILURE_ABORTED(
         flag = PackageInstaller.STATUS_FAILURE_ABORTED,
         title = R.string.installer_result_cancelled,
         contentStringResId = R.string.installer_result_aborted_description,
-        confirmButton = installerDialogButton(R.string.ok),
     ),
     FAILURE_BLOCKED(
         flag = PackageInstaller.STATUS_FAILURE_BLOCKED,
         title = R.string.installer_result_blocked,
         contentStringResId = R.string.installer_result_blocked_description,
-        confirmButton = installerDialogButton(R.string.ok),
     ),
     FAILURE_CONFLICT(
         flag = PackageInstaller.STATUS_FAILURE_CONFLICT,
@@ -103,7 +100,6 @@ internal enum class DialogKind(
         flag = PackageInstaller.STATUS_FAILURE_INCOMPATIBLE,
         title = R.string.installer_result_incompatible,
         contentStringResId = R.string.installer_result_incompatible_description,
-        confirmButton = installerDialogButton(R.string.ok),
     ),
     FAILURE_INVALID(
         flag = PackageInstaller.STATUS_FAILURE_INVALID,
@@ -118,7 +114,6 @@ internal enum class DialogKind(
         flag = PackageInstaller.STATUS_FAILURE_STORAGE,
         title = R.string.installer_result_storage_issue,
         contentStringResId = R.string.installer_result_storage_issue_description,
-        confirmButton = installerDialogButton(R.string.ok),
     ),
 
     @RequiresApi(34)
@@ -126,14 +121,12 @@ internal enum class DialogKind(
         flag = PackageInstaller.STATUS_FAILURE_TIMEOUT,
         title = R.string.installer_result_timeout,
         contentStringResId = R.string.installer_result_timeout_description,
-        confirmButton = installerDialogButton(R.string.ok),
     ),
     SUCCESS(
         flag = PackageInstaller.STATUS_SUCCESS,
         title = R.string.installer_result_success,
         contentStringResId = R.string.installer_result_success_description,
         icon = Icons.Outlined.Check,
-        confirmButton = installerDialogButton(R.string.ok),
     );
 
     // This is needed in order to have static extensions for @FromValue
