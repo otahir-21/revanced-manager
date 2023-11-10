@@ -109,7 +109,10 @@ internal enum class DialogKind(
         flag = PackageInstaller.STATUS_FAILURE_INVALID,
         title = R.string.installer_result_invalid,
         contentStringResId = R.string.installer_result_invalid_description,
-        confirmButton = installerDialogButton(R.string.ok),
+        confirmButton = installerDialogButton(R.string.installer_reinstall) { vm ->
+            vm.reinstall()
+        },
+        dismissButton = installerDialogButton(R.string.cancel),
     ),
     FAILURE_STORAGE(
         flag = PackageInstaller.STATUS_FAILURE_STORAGE,
