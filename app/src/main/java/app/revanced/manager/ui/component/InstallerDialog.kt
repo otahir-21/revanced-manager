@@ -63,6 +63,16 @@ fun InstallerDialog(
     )
 }
 
+private fun installerDialogButton(
+    @StringRes buttonStringResId: Int,
+    handler: InstallerDialogButtonHandler = { },
+): InstallerDialogButton = { vm ->
+    TextButton(onClick = {
+        vm.showInstallerDialog = false
+        handler(vm)
+    }) { Text(stringResource(buttonStringResId)) }
+}
+
 @FromValue("flag")
 internal enum class DialogKind(
     val flag: Int,
@@ -131,14 +141,4 @@ internal enum class DialogKind(
 
     // This is needed in order to have static extensions for @FromValue
     companion object
-}
-
-private fun installerDialogButton(
-    @StringRes buttonStringResId: Int,
-    handler: InstallerDialogButtonHandler = { },
-): InstallerDialogButton = { vm ->
-    TextButton(onClick = {
-        vm.showInstallerDialog = false
-        handler(vm)
-    }) { Text(stringResource(buttonStringResId)) }
 }
