@@ -56,6 +56,7 @@ import java.util.logging.LogRecord
 class InstallerViewModel(
     private val input: Destination.Installer
 ) : ViewModel(), KoinComponent {
+    private val logger = ManagerLogger()
     private val app: Application by inject()
     private val fs: Filesystem by inject()
     private val pm: PM by inject()
@@ -64,6 +65,7 @@ class InstallerViewModel(
     private val rootInstaller: RootInstaller by inject()
 
     var installerStatus by mutableStateOf<Int?>(null)
+        private set
     var showInstallerDialog by mutableStateOf(false)
 
     val packageName: String = input.selectedApp.packageName
@@ -84,51 +86,26 @@ class InstallerViewModel(
 
     private val workManager = WorkManager.getInstance(app)
 
-    private val _progress: MutableStateFlow<ImmutableList<Step>>
-    private val patcherWorkerId: UUID
-    private val logger = ManagerLogger()
+    val progress: MutableStateFlow<ImmutableList<Step>> = MutableStateFlow(
+        PatcherProgressManager.generateSteps(
+            app,
+            input.selectedPatches.flatMap { (_, selected) -> selected },
+            input.selectedApp
+        ).toImmutableList()
+    )
 
-    init {
-        // TODO: navigate away when system-initiated process death is detected because it is not possible to recover from it.
-
-        viewModelScope.launch {
-            installedApp = installedAppRepository.get(packageName)
-        }
-
-        val (selectedApp, patches, options) = input
-
-        _progress = MutableStateFlow(
-            PatcherProgressManager.generateSteps(
-                app,
-                patches.flatMap { (_, selected) -> selected },
-                selectedApp
-            ).toImmutableList()
-        )
-
-        patcherWorkerId =
-            workerRepository.launchExpedited<PatcherWorker, PatcherWorker.Args>(
-                "patching", PatcherWorker.Args(
-                    selectedApp,
-                    outputFile.path,
-                    patches,
-                    options,
-                    _progress,
-                    logger,
-                    setInputFile = { inputFile = it }
-                )
+    private val patcherWorkerId: UUID =
+        workerRepository.launchExpedited<PatcherWorker, PatcherWorker.Args>(
+            "patching", PatcherWorker.Args(
+                input.selectedApp,
+                outputFile.path,
+                input.selectedPatches,
+                input.options,
+                this.progress,
+                logger,
+                setInputFile = { inputFile = it }
             )
-    }
-
-    val progress = _progress.asStateFlow()
-
-    val patcherState =
-        workManager.getWorkInfoByIdLiveData(patcherWorkerId).map { workInfo: WorkInfo ->
-            when (workInfo.state) {
-                WorkInfo.State.SUCCEEDED -> true
-                WorkInfo.State.FAILED -> false
-                else -> null
-            }
-        }
+        )
 
     private val installBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -175,6 +152,12 @@ class InstallerViewModel(
     }
 
     init {
+        // TODO: navigate away when system-initiated process death is detected
+        //  because it is not possible to recover from it.
+        viewModelScope.launch {
+            installedApp = installedAppRepository.get(packageName)
+        }
+
         ContextCompat.registerReceiver(
             app, installBroadcastReceiver,
             IntentFilter(InstallService.APP_INSTALL_ACTION),
@@ -187,6 +170,15 @@ class InstallerViewModel(
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
     }
+
+    val patcherState =
+        workManager.getWorkInfoByIdLiveData(patcherWorkerId).map { workInfo: WorkInfo ->
+            when (workInfo.state) {
+                WorkInfo.State.SUCCEEDED -> true
+                WorkInfo.State.FAILED -> false
+                else -> null
+            }
+        }
 
     fun exportLogs(context: Context) {
         val sendIntent: Intent = Intent().apply {
