@@ -86,13 +86,15 @@ class InstallerViewModel(
 
     private val workManager = WorkManager.getInstance(app)
 
-    val progress: MutableStateFlow<ImmutableList<Step>> = MutableStateFlow(
+    private val _progress: MutableStateFlow<ImmutableList<Step>> = MutableStateFlow(
         PatcherProgressManager.generateSteps(
             app,
             input.selectedPatches.flatMap { (_, selected) -> selected },
             input.selectedApp
         ).toImmutableList()
     )
+
+    val progress = _progress.asStateFlow()
 
     private val patcherWorkerId: UUID =
         workerRepository.launchExpedited<PatcherWorker, PatcherWorker.Args>(
@@ -101,7 +103,7 @@ class InstallerViewModel(
                 outputFile.path,
                 input.selectedPatches,
                 input.options,
-                this.progress,
+                _progress,
                 logger,
                 setInputFile = { inputFile = it }
             )
