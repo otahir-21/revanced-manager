@@ -20,26 +20,32 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
-import app.revanced.manager.ui.viewmodel.InstallerViewModel
 import com.github.materiiapps.enumutil.FromValue
 
-private typealias InstallerDialogButtonHandler = ((vm: InstallerViewModel) -> Unit)
-private typealias InstallerDialogButton = @Composable (vm: InstallerViewModel) -> Unit
+abstract class InstallerDialogModel {
+    abstract var installerStatus: Int
+    abstract var showInstallerDialog: Boolean
+
+    abstract fun reinstall()
+}
+
+private typealias InstallerDialogButtonHandler = ((model: InstallerDialogModel) -> Unit)
+private typealias InstallerDialogButton = @Composable (model: InstallerDialogModel) -> Unit
 
 
 @Composable
 fun InstallerDialog(
-    vm: InstallerViewModel,
+    model: InstallerDialogModel,
 ) {
-    val dialogKind = DialogKind.fromValue(vm.installerStatus!!) ?: DialogKind.FAILURE
+    val dialogKind = DialogKind.fromValue(model.installerStatus) ?: DialogKind.FAILURE
 
     AlertDialog(
         onDismissRequest = {},
         confirmButton = {
-            dialogKind.confirmButton(vm)
+            dialogKind.confirmButton(model)
         },
         dismissButton = {
-            dialogKind.dismissButton?.invoke(vm)
+            dialogKind.dismissButton?.invoke(model)
         },
         icon = {
             Icon(dialogKind.icon, null)
@@ -66,10 +72,10 @@ fun InstallerDialog(
 private fun installerDialogButton(
     @StringRes buttonStringResId: Int,
     handler: InstallerDialogButtonHandler = { },
-): InstallerDialogButton = { vm ->
+): InstallerDialogButton = { model ->
     TextButton(onClick = {
-        vm.showInstallerDialog = false
-        handler(vm)
+        model.showInstallerDialog = false
+        handler(model)
     }) { Text(stringResource(buttonStringResId)) }
 }
 

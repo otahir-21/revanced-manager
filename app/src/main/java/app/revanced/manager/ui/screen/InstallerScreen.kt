@@ -44,6 +44,7 @@ import app.revanced.manager.ui.component.AppScaffold
 import app.revanced.manager.ui.component.AppTopBar
 import app.revanced.manager.ui.component.ArrowButton
 import app.revanced.manager.ui.component.InstallerDialog
+import app.revanced.manager.ui.component.InstallerDialogModel
 import app.revanced.manager.ui.viewmodel.InstallerViewModel
 import app.revanced.manager.util.APK_MIMETYPE
 import kotlin.math.floor
@@ -71,7 +72,18 @@ fun InstallerScreen(
         )
 
     if (vm.showInstallerDialog)
-        InstallerDialog(vm)
+        InstallerDialog(object : InstallerDialogModel() {
+            override var installerStatus: Int = vm.installerStatus!!
+            override var showInstallerDialog = vm.showInstallerDialog
+                set(value) {
+                    field = value
+                    vm.showInstallerDialog = value
+                }
+
+            override fun reinstall() {
+                vm.reinstall()
+            }
+        })
 
     AppScaffold(
         topBar = {
