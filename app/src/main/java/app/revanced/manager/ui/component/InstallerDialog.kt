@@ -40,7 +40,9 @@ fun InstallerDialog(
     val dialogKind = DialogKind.fromValue(model.installerStatus) ?: DialogKind.FAILURE
 
     AlertDialog(
-        onDismissRequest = {},
+        onDismissRequest = {
+            model.showInstallerDialog = false
+        },
         confirmButton = {
             dialogKind.confirmButton(model)
         },
