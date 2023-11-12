@@ -109,7 +109,7 @@ class InstallerViewModel(
             )
         )
 
-    private val installBroadcastReceiver = object : BroadcastReceiver() {
+    private val intentBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 InstallService.APP_INSTALL_ACTION -> {
@@ -132,13 +132,7 @@ class InstallerViewModel(
                     installerStatus = pmStatus
                     showInstallerDialog = true
                 }
-            }
-        }
-    }
 
-    private val uninstallBroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            when (intent?.action) {
                 UninstallService.APP_UNINSTALL_ACTION -> {
                     val extraStatus =
                         intent.getIntExtra(UninstallService.EXTRA_UNINSTALL_STATUS, -999)
@@ -161,14 +155,8 @@ class InstallerViewModel(
         }
 
         ContextCompat.registerReceiver(
-            app, installBroadcastReceiver,
-            IntentFilter(InstallService.APP_INSTALL_ACTION),
-            ContextCompat.RECEIVER_NOT_EXPORTED
-        )
-
-        ContextCompat.registerReceiver(
-            app, uninstallBroadcastReceiver,
-            IntentFilter(UninstallService.APP_UNINSTALL_ACTION),
+            app, intentBroadcastReceiver,
+            IntentFilter(InstallService.APP_INSTALL_ACTION, UninstallService.APP_UNINSTALL_ACTION),
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
     }
@@ -195,8 +183,7 @@ class InstallerViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        app.unregisterReceiver(installBroadcastReceiver)
-        app.unregisterReceiver(uninstallBroadcastReceiver)
+        app.unregisterReceiver(intentBroadcastReceiver)
         workManager.cancelWorkById(patcherWorkerId)
 
         when (val selectedApp = input.selectedApp) {
