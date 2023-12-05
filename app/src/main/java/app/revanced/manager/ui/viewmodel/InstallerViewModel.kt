@@ -221,11 +221,16 @@ class InstallerViewModel(
     }
 
     fun reinstall() = viewModelScope.launch {
-        pm.getPackageInfo(outputFile)?.packageName?.let { pm.uninstallPackage(it) }
-            ?: throw Exception("Failed to load application info")
+        try{
+            pm.getPackageInfo(outputFile)?.packageName?.let { pm.uninstallPackage(it) }
+                ?: throw Exception("Failed to load application info")
 
-        pm.uninstallPackage(packageName)
-        pm.installApp(listOf(outputFile))
+            pm.installApp(listOf(outputFile))
+        } catch (e: Exception) {
+            Log.e(tag, "Failed to reinstall", e)
+            app.toast(app.getString(R.string.reinstall_app_fail, e.simpleMessage()))
+        }
+
     }
 
     fun install(installType: InstallType) = viewModelScope.launch {
