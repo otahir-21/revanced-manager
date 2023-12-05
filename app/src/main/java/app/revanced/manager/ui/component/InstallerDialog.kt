@@ -81,8 +81,9 @@ private fun installerDialogButton(
     }) { Text(stringResource(buttonStringResId)) }
 }
 
+// TODO: Change to internal once https://github.com/MateriiApps/enumutil-kt/issues/4 is fixed
 @FromValue("flag")
-internal enum class DialogKind(
+enum class DialogKind(
     val flag: Int,
     val title: Int,
     @StringRes val contentStringResId: Int,
