@@ -156,7 +156,10 @@ class InstallerViewModel(
 
         ContextCompat.registerReceiver(
             app, intentBroadcastReceiver,
-            IntentFilter(InstallService.APP_INSTALL_ACTION, UninstallService.APP_UNINSTALL_ACTION),
+            IntentFilter().apply {
+                addAction(InstallService.APP_INSTALL_ACTION)
+                addAction(UninstallService.APP_UNINSTALL_ACTION)
+            },
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
     }
@@ -221,7 +224,7 @@ class InstallerViewModel(
     }
 
     fun reinstall() = viewModelScope.launch {
-        try{
+        try {
             pm.getPackageInfo(outputFile)?.packageName?.let { pm.uninstallPackage(it) }
                 ?: throw Exception("Failed to load application info")
 
