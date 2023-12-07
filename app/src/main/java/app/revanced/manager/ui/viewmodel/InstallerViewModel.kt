@@ -64,11 +64,12 @@ class InstallerViewModel(
     private val installedAppRepository: InstalledAppRepository by inject()
     private val rootInstaller: RootInstaller by inject()
 
-    var installerStatus by mutableStateOf<Int?>(null)
+    internal var packageInstallerResult by mutableStateOf<PackageInstallerResult?>(null)
         private set
-    var showInstallerDialog by mutableStateOf(false)
 
-    val packageName: String = input.selectedApp.packageName
+    internal var showInstallerStatusDialog by mutableStateOf(false)
+
+    internal val packageName: String = input.selectedApp.packageName
     private val tempDir = fs.tempDir.resolve("installer").also {
         it.deleteRecursively()
         it.mkdirs()
@@ -78,11 +79,11 @@ class InstallerViewModel(
     private var inputFile: File? = null
 
     private var installedApp: InstalledApp? = null
-    var isInstalling by mutableStateOf(false)
+    internal var isInstalling by mutableStateOf(false)
         private set
-    var installedPackageName by mutableStateOf<String?>(null)
+    internal var installedPackageName by mutableStateOf<String?>(null)
         private set
-    val appButtonText by derivedStateOf { if (installedPackageName == null) R.string.install_app else R.string.open_app }
+    internal val appButtonText by derivedStateOf { if (installedPackageName == null) R.string.install_app else R.string.open_app }
 
     private val workManager = WorkManager.getInstance(app)
 
@@ -94,7 +95,7 @@ class InstallerViewModel(
         ).toImmutableList()
     )
 
-    val progress = _progress.asStateFlow()
+    internal val progress = _progress.asStateFlow()
 
     private val patcherWorkerId: UUID =
         workerRepository.launchExpedited<PatcherWorker, PatcherWorker.Args>(
@@ -113,7 +114,12 @@ class InstallerViewModel(
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 InstallService.APP_INSTALL_ACTION -> {
-                    val pmStatus = intent.getIntExtra(InstallService.EXTRA_INSTALL_STATUS, -999)
+                    val pmStatus = intent.getIntExtra(
+                        InstallService.EXTRA_INSTALL_STATUS,
+                        PackageInstaller.STATUS_FAILURE
+                    )
+                    val pmExtra =
+                        intent.getStringExtra(UninstallService.EXTRA_UNINSTALL_STATUS_MESSAGE)
 
                     if (pmStatus == PackageInstaller.STATUS_SUCCESS) {
                         installedPackageName =
@@ -129,19 +135,24 @@ class InstallerViewModel(
                         }
                     }
 
-                    installerStatus = pmStatus
-                    showInstallerDialog = true
+                    packageInstallerResult = PackageInstallerResult(pmStatus, pmExtra)
+                    showInstallerStatusDialog = true
                 }
 
                 UninstallService.APP_UNINSTALL_ACTION -> {
-                    val extraStatus =
-                        intent.getIntExtra(UninstallService.EXTRA_UNINSTALL_STATUS, -999)
-                    val extraStatusMessage =
+                    val pmStatus = intent.getIntExtra(
+                        UninstallService.EXTRA_UNINSTALL_STATUS,
+                        PackageInstaller.STATUS_FAILURE
+                    )
+                    val pmExtra =
                         intent.getStringExtra(UninstallService.EXTRA_UNINSTALL_STATUS_MESSAGE)
 
-                    if (extraStatus != PackageInstaller.STATUS_FAILURE_ABORTED) {
-                        app.toast(app.getString(R.string.uninstall_app_fail, extraStatusMessage))
-                    }
+                    packageInstallerResult = PackageInstallerResult(
+                        pmStatus,
+                        pmExtra,
+                        uninstall = true
+                    )
+                    showInstallerStatusDialog = true
                 }
             }
         }
@@ -296,6 +307,12 @@ class InstallerViewModel(
         }
     }
 }
+
+internal data class PackageInstallerResult(
+    val status: Int = PackageInstaller.STATUS_FAILURE,
+    val extraStatusMessage: String?,
+    val uninstall: Boolean = false
+)
 
 // TODO: move this to a better place
 class ManagerLogger : java.util.logging.Handler() {

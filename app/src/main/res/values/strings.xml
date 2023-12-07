@@ -317,26 +317,25 @@
     <string name="download_update_confirmation">Download update?</string>
     <string name="no_contributors_found">No contributors found</string>
 
-    <string name="installer_result_failed">Failed to install</string>
-    <string name="installer_result_cancelled">Cancelled</string>
-    <string name="installer_result_blocked">Blocked</string>
-    <string name="installer_result_conflict">Conflict</string>
-    <string name="installer_result_incompatible">Incompatible</string>
-    <string name="installer_result_invalid">Invalid</string>
-    <string name="installer_result_storage_issue">Storage issue</string>
-    <string name="installer_result_timeout">Timeout</string>
-    <string name="installer_result_success">Success</string>
-    <string name="installer_result_unknown">Unknown</string>
+    <string name="installation_failed">Installation failed</string>
+    <string name="installation_cancelled">Installation cancelled</string>
+    <string name="installation_blocked">Installation blocked</string>
+    <string name="installation_conflict">Installation conflict</string>
+    <string name="installation_incompatible">Installation incompatible</string>
+    <string name="installation_invalid">Installation invalid</string>
+    <string name="installation_storage_issue">Installation storage issue</string>
+    <string name="installation_timeout">Installation timeout</string>
+    <string name="installation_success">Installation succeeded</string>
 
-    <string name="installer_result_failed_description">The installation failed for an unknown reason.</string>
-    <string name="installer_result_aborted_description">The installation was manually cancelled.</string>
-    <string name="installer_result_blocked_description">The installation was blocked.</string>
-    <string name="installer_result_conflict_description">An existing installation of the app prevents the installation. Uninstall the app and try again?</string>
-    <string name="installer_result_incompatible_description">The app is incompatible with this device.</string>
-    <string name="installer_result_invalid_description">The app is invalid. Uninstall the current installation and try again?</string>
-    <string name="installer_result_storage_issue_description">The app could not be installed due to insufficient storage.</string>
-    <string name="installer_result_timeout_description">The installation took too long.</string>
-    <string name="installer_result_success_description">The app was successfully installed.</string>
+    <string name="installation_failed_description">The installation failed due to an unknown reason. Please try again.</string>
+    <string name="installation_aborted_description">The installation was cancelled manually.</string>
+    <string name="installation_blocked_description">The installation was blocked. Adjust your security settings and try again.</string>
+    <string name="installation_conflict_description">An existing installation of the app prevents the installation. Uninstall the app and try again?</string>
+    <string name="installation_incompatible_description">The app is incompatible with this device. Contact the developer of the app and ask for support.</string>
+    <string name="installation_invalid_description">The app is invalid. Uninstall the app and try again?</string>
+    <string name="installation_storage_issue_description">The app could not be installed due to insufficient storage. Free up some space and try again.</string>
+    <string name="installation_timeout_description">The installation took too long.</string>
+    <string name="installation_success_description">The app has been installed successfully.</string>
 
-    <string name="installer_reinstall">Reinstall</string>
+    <string name="reinstall">Reinstall</string>
 </resources>

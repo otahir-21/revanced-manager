@@ -20,28 +20,30 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
+import app.revanced.manager.ui.viewmodel.PackageInstallerResult
 import com.github.materiiapps.enumutil.FromValue
 
-abstract class InstallerDialogModel {
-    abstract var installerStatus: Int
-    abstract var showInstallerDialog: Boolean
+internal abstract class InstallerStatusDialogModel {
+    abstract var packageInstallerResult: PackageInstallerResult
+    abstract var showInstallerStatusDialog: Boolean
 
     abstract fun reinstall()
+    abstract fun install()
 }
 
-private typealias InstallerDialogButtonHandler = ((model: InstallerDialogModel) -> Unit)
-private typealias InstallerDialogButton = @Composable (model: InstallerDialogModel) -> Unit
+private typealias InstallerStatusDialogButtonHandler = ((model: InstallerStatusDialogModel) -> Unit)
+private typealias InstallerStatusDialogButton = @Composable (model: InstallerStatusDialogModel) -> Unit
 
 
 @Composable
-fun InstallerDialog(
-    model: InstallerDialogModel,
+internal fun InstallerStatusDialog(
+    model: InstallerStatusDialogModel,
 ) {
-    val dialogKind = DialogKind.fromValue(model.installerStatus) ?: DialogKind.FAILURE
+    val dialogKind = DialogKind.fromValue(model.packageInstallerResult.status) ?: DialogKind.FAILURE
 
     AlertDialog(
         onDismissRequest = {
-            model.showInstallerDialog = false
+            model.showInstallerStatusDialog = false
         },
         confirmButton = {
             dialogKind.confirmButton(model)
@@ -73,10 +75,10 @@ fun InstallerDialog(
 
 private fun installerDialogButton(
     @StringRes buttonStringResId: Int,
-    handler: InstallerDialogButtonHandler = { },
-): InstallerDialogButton = { model ->
+    handler: InstallerStatusDialogButtonHandler = { },
+): InstallerStatusDialogButton = { model ->
     TextButton(onClick = {
-        model.showInstallerDialog = false
+        model.showInstallerStatusDialog = false
         handler(model)
     }) { Text(stringResource(buttonStringResId)) }
 }
@@ -84,67 +86,70 @@ private fun installerDialogButton(
 // TODO: Change to internal once https://github.com/MateriiApps/enumutil-kt/issues/4 is fixed
 @FromValue("flag")
 enum class DialogKind(
-    val flag: Int,
-    val title: Int,
-    @StringRes val contentStringResId: Int,
-    val icon: ImageVector = Icons.Outlined.ErrorOutline,
-    val confirmButton: InstallerDialogButton = installerDialogButton(R.string.ok),
-    val dismissButton: InstallerDialogButton? = null,
+    internal val flag: Int,
+    internal val title: Int,
+    @StringRes internal val contentStringResId: Int,
+    internal val icon: ImageVector = Icons.Outlined.ErrorOutline,
+    internal val confirmButton: InstallerStatusDialogButton = installerDialogButton(R.string.ok),
+    internal val dismissButton: InstallerStatusDialogButton? = null,
 ) {
     FAILURE(
         flag = PackageInstaller.STATUS_FAILURE,
-        title = R.string.installer_result_failed,
-        contentStringResId = R.string.installer_result_failed_description,
+        title = R.string.installation_failed,
+        contentStringResId = R.string.installation_failed_description,
     ),
     FAILURE_ABORTED(
         flag = PackageInstaller.STATUS_FAILURE_ABORTED,
-        title = R.string.installer_result_cancelled,
-        contentStringResId = R.string.installer_result_aborted_description,
+        title = R.string.installation_cancelled,
+        contentStringResId = R.string.installation_aborted_description,
     ),
     FAILURE_BLOCKED(
         flag = PackageInstaller.STATUS_FAILURE_BLOCKED,
-        title = R.string.installer_result_blocked,
-        contentStringResId = R.string.installer_result_blocked_description,
+        title = R.string.installation_blocked,
+        contentStringResId = R.string.installation_blocked_description,
     ),
     FAILURE_CONFLICT(
         flag = PackageInstaller.STATUS_FAILURE_CONFLICT,
-        title = R.string.installer_result_conflict,
-        contentStringResId = R.string.installer_result_conflict_description,
-        confirmButton = installerDialogButton(R.string.installer_reinstall) { vm ->
+        title = R.string.installation_conflict,
+        contentStringResId = R.string.installation_conflict_description,
+        confirmButton = installerDialogButton(R.string.reinstall) { vm ->
             vm.reinstall()
         },
         dismissButton = installerDialogButton(R.string.cancel),
     ),
     FAILURE_INCOMPATIBLE(
         flag = PackageInstaller.STATUS_FAILURE_INCOMPATIBLE,
-        title = R.string.installer_result_incompatible,
-        contentStringResId = R.string.installer_result_incompatible_description,
+        title = R.string.installation_incompatible,
+        contentStringResId = R.string.installation_incompatible_description,
     ),
     FAILURE_INVALID(
         flag = PackageInstaller.STATUS_FAILURE_INVALID,
-        title = R.string.installer_result_invalid,
-        contentStringResId = R.string.installer_result_invalid_description,
-        confirmButton = installerDialogButton(R.string.installer_reinstall) { vm ->
+        title = R.string.installation_invalid,
+        contentStringResId = R.string.installation_invalid_description,
+        confirmButton = installerDialogButton(R.string.reinstall) { vm ->
             vm.reinstall()
         },
         dismissButton = installerDialogButton(R.string.cancel),
     ),
     FAILURE_STORAGE(
         flag = PackageInstaller.STATUS_FAILURE_STORAGE,
-        title = R.string.installer_result_storage_issue,
-        contentStringResId = R.string.installer_result_storage_issue_description,
+        title = R.string.installation_storage_issue,
+        contentStringResId = R.string.installation_storage_issue_description,
     ),
 
     @RequiresApi(34)
     FAILURE_TIMEOUT(
         flag = PackageInstaller.STATUS_FAILURE_TIMEOUT,
-        title = R.string.installer_result_timeout,
-        contentStringResId = R.string.installer_result_timeout_description,
+        title = R.string.installation_timeout,
+        contentStringResId = R.string.installation_timeout_description,
+        confirmButton = installerDialogButton(R.string.install_app) { vm ->
+            vm.install()
+        },
     ),
     SUCCESS(
         flag = PackageInstaller.STATUS_SUCCESS,
-        title = R.string.installer_result_success,
-        contentStringResId = R.string.installer_result_success_description,
+        title = R.string.installation_success,
+        contentStringResId = R.string.installation_success_description,
         icon = Icons.Outlined.Check,
     );
 
