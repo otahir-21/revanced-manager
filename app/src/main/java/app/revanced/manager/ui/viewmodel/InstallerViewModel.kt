@@ -79,11 +79,11 @@ class InstallerViewModel(
     private var inputFile: File? = null
 
     private var installedApp: InstalledApp? = null
-    internal var isInstalling by mutableStateOf(false)
+    var isInstalling by mutableStateOf(false)
         private set
-    internal var installedPackageName by mutableStateOf<String?>(null)
+    var installedPackageName by mutableStateOf<String?>(null)
         private set
-    internal val appButtonText by derivedStateOf { if (installedPackageName == null) R.string.install_app else R.string.open_app }
+    val appButtonText by derivedStateOf { if (installedPackageName == null) R.string.install_app else R.string.open_app }
 
     private val workManager = WorkManager.getInstance(app)
 
@@ -95,7 +95,7 @@ class InstallerViewModel(
         ).toImmutableList()
     )
 
-    internal val progress = _progress.asStateFlow()
+    val progress = _progress.asStateFlow()
 
     private val patcherWorkerId: UUID =
         workerRepository.launchExpedited<PatcherWorker, PatcherWorker.Args>(
@@ -308,7 +308,7 @@ class InstallerViewModel(
     }
 }
 
-internal data class PackageInstallerResult(
+data class PackageInstallerResult(
     val status: Int = PackageInstaller.STATUS_FAILURE,
     val extraStatusMessage: String?,
     val uninstall: Boolean = false

@@ -23,7 +23,7 @@ import app.revanced.manager.R
 import app.revanced.manager.ui.viewmodel.PackageInstallerResult
 import com.github.materiiapps.enumutil.FromValue
 
-internal abstract class InstallerStatusDialogModel {
+abstract class InstallerStatusDialogModel {
     abstract var packageInstallerResult: PackageInstallerResult
     abstract var showInstallerStatusDialog: Boolean
 
@@ -36,7 +36,7 @@ private typealias InstallerStatusDialogButton = @Composable (model: InstallerSta
 
 
 @Composable
-internal fun InstallerStatusDialog(
+fun InstallerStatusDialog(
     model: InstallerStatusDialogModel,
 ) {
     val dialogKind = DialogKind.fromValue(model.packageInstallerResult.status) ?: DialogKind.FAILURE
@@ -86,11 +86,11 @@ private fun installerDialogButton(
 // TODO: Change to internal once https://github.com/MateriiApps/enumutil-kt/issues/4 is fixed
 @FromValue("flag")
 enum class DialogKind(
-    internal val flag: Int,
-    internal val title: Int,
+    val flag: Int,
+    val title: Int,
     @StringRes internal val contentStringResId: Int,
-    internal val icon: ImageVector = Icons.Outlined.ErrorOutline,
-    internal val confirmButton: InstallerStatusDialogButton = installerDialogButton(R.string.ok),
+    val icon: ImageVector = Icons.Outlined.ErrorOutline,
+    val confirmButton: InstallerStatusDialogButton = installerDialogButton(R.string.ok),
     internal val dismissButton: InstallerStatusDialogButton? = null,
 ) {
     FAILURE(
