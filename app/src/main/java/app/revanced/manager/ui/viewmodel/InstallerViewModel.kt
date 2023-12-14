@@ -64,12 +64,12 @@ class InstallerViewModel(
     private val installedAppRepository: InstalledAppRepository by inject()
     private val rootInstaller: RootInstaller by inject()
 
-    internal var packageInstallerResult by mutableStateOf<PackageInstallerResult?>(null)
+    var packageInstallerResult by mutableStateOf<PackageInstallerResult?>(null)
         private set
 
-    internal var showInstallerStatusDialog by mutableStateOf(false)
+    var showInstallerStatusDialog by mutableStateOf(false)
 
-    internal val packageName: String = input.selectedApp.packageName
+    val packageName: String = input.selectedApp.packageName
     private val tempDir = fs.tempDir.resolve("installer").also {
         it.deleteRecursively()
         it.mkdirs()
