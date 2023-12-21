@@ -40,7 +40,9 @@ private typealias InstallerStatusDialogButton = @Composable (model: InstallerSta
 fun InstallerStatusDialog(
     model: InstallerStatusDialogModel,
 ) {
-    val dialogKind = DialogKind.fromValue(model.packageInstallerResult.status) ?: DialogKind.FAILURE
+    val dialogKind = remember {
+        DialogKind.fromValue(model.packageInstallerResult.status) ?: DialogKind.FAILURE
+    }
 
     AlertDialog(
         onDismissRequest = {
