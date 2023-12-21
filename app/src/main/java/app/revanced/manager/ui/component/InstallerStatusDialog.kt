@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -23,12 +24,12 @@ import app.revanced.manager.R
 import app.revanced.manager.ui.viewmodel.PackageInstallerResult
 import com.github.materiiapps.enumutil.FromValue
 
-abstract class InstallerStatusDialogModel {
-    abstract var packageInstallerResult: PackageInstallerResult
-    abstract var showInstallerStatusDialog: Boolean
+interface InstallerStatusDialogModel {
+    var packageInstallerResult: PackageInstallerResult
+    var showInstallerStatusDialog: Boolean
 
-    abstract fun reinstall()
-    abstract fun install()
+    fun reinstall()
+    fun install()
 }
 
 private typealias InstallerStatusDialogButtonHandler = ((model: InstallerStatusDialogModel) -> Unit)

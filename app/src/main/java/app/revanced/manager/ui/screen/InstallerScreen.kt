@@ -72,7 +72,7 @@ fun InstallerScreen(
         )
 
     if (vm.showInstallerStatusDialog)
-        InstallerStatusDialog(object : InstallerStatusDialogModel() {
+        InstallerStatusDialog(object : InstallerStatusDialogModel {
             override var packageInstallerResult = vm.packageInstallerResult!!
             override var showInstallerStatusDialog = vm.showInstallerStatusDialog
                 set(value) {
