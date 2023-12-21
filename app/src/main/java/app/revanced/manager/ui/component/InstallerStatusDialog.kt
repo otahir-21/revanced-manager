@@ -37,9 +37,7 @@ private typealias InstallerStatusDialogButton = @Composable (model: InstallerSta
 
 
 @Composable
-fun InstallerStatusDialog(
-    model: InstallerStatusDialogModel,
-) {
+fun InstallerStatusDialog(model: InstallerStatusDialogModel, ) {
     val dialogKind = remember {
         DialogKind.fromValue(model.packageInstallerResult.status) ?: DialogKind.FAILURE
     }
@@ -86,7 +84,6 @@ private fun installerDialogButton(
     }) { Text(stringResource(buttonStringResId)) }
 }
 
-// TODO: Change to internal once https://github.com/MateriiApps/enumutil-kt/issues/4 is fixed
 @FromValue("flag")
 enum class DialogKind(
     val flag: Int,

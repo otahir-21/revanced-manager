@@ -147,12 +147,11 @@ class InstallerViewModel(
                     val pmExtra =
                         intent.getStringExtra(UninstallService.EXTRA_UNINSTALL_STATUS_MESSAGE)
 
-                    packageInstallerResult = PackageInstallerResult(
-                        pmStatus,
-                        pmExtra,
-                        uninstall = true
-                    )
-                    showInstallerStatusDialog = true
+
+                    if (pmStatus != PackageInstaller.STATUS_SUCCESS) {
+                        showInstallerStatusDialog = true
+                        packageInstallerResult = PackageInstallerResult(pmStatus, pmExtra)
+                    }
                 }
             }
         }
@@ -311,7 +310,6 @@ class InstallerViewModel(
 data class PackageInstallerResult(
     val status: Int = PackageInstaller.STATUS_FAILURE,
     val extraStatusMessage: String?,
-    val uninstall: Boolean = false
 )
 
 // TODO: move this to a better place
