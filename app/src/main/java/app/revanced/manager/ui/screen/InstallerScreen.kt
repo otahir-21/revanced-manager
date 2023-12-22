@@ -72,22 +72,7 @@ fun InstallerScreen(
         )
 
     if (vm.showInstallerStatusDialog)
-        InstallerStatusDialog(object : InstallerStatusDialogModel {
-            override var packageInstallerResult = vm.packageInstallerResult!!
-            override var showInstallerStatusDialog = vm.showInstallerStatusDialog
-                set(value) {
-                    field = value
-                    vm.showInstallerStatusDialog = value
-                }
-
-            override fun reinstall() {
-                vm.reinstall()
-            }
-
-            override fun install() {
-                vm.install(InstallType.DEFAULT) // Always default for now.
-            }
-        })
+        InstallerStatusDialog(vm.installerStatusDialogModel)
 
     AppScaffold(
         topBar = {

@@ -31,6 +31,7 @@ import app.revanced.manager.patcher.worker.PatcherWorker
 import app.revanced.manager.patcher.worker.Step
 import app.revanced.manager.service.InstallService
 import app.revanced.manager.service.UninstallService
+import app.revanced.manager.ui.component.InstallerStatusDialogModel
 import app.revanced.manager.ui.destination.Destination
 import app.revanced.manager.ui.model.SelectedApp
 import app.revanced.manager.util.PM
@@ -68,6 +69,23 @@ class InstallerViewModel(
         private set
 
     var showInstallerStatusDialog by mutableStateOf(false)
+
+    val installerStatusDialogModel = object : InstallerStatusDialogModel {
+        override var packageInstallerResult = this@InstallerViewModel.packageInstallerResult!!
+        override var showInstallerStatusDialog = this@InstallerViewModel.showInstallerStatusDialog
+            set(value) {
+                field = value
+                this@InstallerViewModel.showInstallerStatusDialog = value
+            }
+
+        override fun reinstall() {
+            this@InstallerViewModel.reinstall()
+        }
+
+        override fun install() {
+            install(InstallType.DEFAULT) // Always default for now.
+        }
+    }
 
     val packageName: String = input.selectedApp.packageName
     private val tempDir = fs.tempDir.resolve("installer").also {
