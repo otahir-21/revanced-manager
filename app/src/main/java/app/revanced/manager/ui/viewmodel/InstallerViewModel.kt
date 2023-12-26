@@ -65,18 +65,8 @@ class InstallerViewModel(
     private val installedAppRepository: InstalledAppRepository by inject()
     private val rootInstaller: RootInstaller by inject()
 
-    var packageInstallerResult by mutableStateOf<PackageInstallerResult?>(null)
-        private set
-
-    var showInstallerStatusDialog by mutableStateOf(false)
-
     val installerStatusDialogModel = object : InstallerStatusDialogModel {
-        override var packageInstallerResult = this@InstallerViewModel.packageInstallerResult!!
-        override var showInstallerStatusDialog = this@InstallerViewModel.showInstallerStatusDialog
-            set(value) {
-                field = value
-                this@InstallerViewModel.showInstallerStatusDialog = value
-            }
+        override var packageInstallerResult by mutableStateOf<PackageInstallerResult?>(null)
 
         override fun reinstall() {
             this@InstallerViewModel.reinstall()
@@ -115,6 +105,8 @@ class InstallerViewModel(
 
     val progress = _progress.asStateFlow()
 
+    // TODO: navigate away when system-initiated process death is detected
+    //  because it is not possible to recover from it.
     private val patcherWorkerId: UUID =
         workerRepository.launchExpedited<PatcherWorker, PatcherWorker.Args>(
             "patching", PatcherWorker.Args(
@@ -153,8 +145,8 @@ class InstallerViewModel(
                         }
                     }
 
-                    packageInstallerResult = PackageInstallerResult(pmStatus, pmExtra)
-                    showInstallerStatusDialog = true
+                    installerStatusDialogModel.packageInstallerResult =
+                        PackageInstallerResult(pmStatus, pmExtra)
                 }
 
                 UninstallService.APP_UNINSTALL_ACTION -> {
@@ -167,8 +159,8 @@ class InstallerViewModel(
 
 
                     if (pmStatus != PackageInstaller.STATUS_SUCCESS) {
-                        showInstallerStatusDialog = true
-                        packageInstallerResult = PackageInstallerResult(pmStatus, pmExtra)
+                        installerStatusDialogModel.packageInstallerResult =
+                            PackageInstallerResult(pmStatus, pmExtra)
                     }
                 }
             }
@@ -176,8 +168,6 @@ class InstallerViewModel(
     }
 
     init {
-        // TODO: navigate away when system-initiated process death is detected
-        //  because it is not possible to recover from it.
         viewModelScope.launch {
             installedApp = installedAppRepository.get(packageName)
         }

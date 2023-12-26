@@ -44,7 +44,6 @@ import app.revanced.manager.ui.component.AppScaffold
 import app.revanced.manager.ui.component.AppTopBar
 import app.revanced.manager.ui.component.ArrowButton
 import app.revanced.manager.ui.component.InstallerStatusDialog
-import app.revanced.manager.ui.component.InstallerStatusDialogModel
 import app.revanced.manager.ui.viewmodel.InstallerViewModel
 import app.revanced.manager.util.APK_MIMETYPE
 import kotlin.math.floor
@@ -71,7 +70,7 @@ fun InstallerScreen(
             onConfirm = { vm.install(it) }
         )
 
-    if (vm.showInstallerStatusDialog)
+    if (vm.installerStatusDialogModel.packageInstallerResult != null)
         InstallerStatusDialog(vm.installerStatusDialogModel)
 
     AppScaffold(
