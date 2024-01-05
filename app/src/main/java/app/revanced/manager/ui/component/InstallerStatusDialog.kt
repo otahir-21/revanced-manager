@@ -67,10 +67,9 @@ fun InstallerStatusDialog(model: InstallerStatusDialogModel) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                content = {
-                    Text(stringResource(dialogKind.contentStringResId))
-                }
-            )
+            ) {
+            	Text(stringResource(dialogKind.contentStringResId))
+            }
         }
     )
 }
