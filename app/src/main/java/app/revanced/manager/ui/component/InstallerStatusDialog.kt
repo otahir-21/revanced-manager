@@ -92,7 +92,7 @@ private fun installerStatusDialogButton(
 enum class DialogKind(
     val flag: Int,
     val title: Int,
-    @StringRes internal val contentStringResId: Int,
+    @StringRes val contentStringResId: Int,
     val icon: ImageVector = Icons.Outlined.ErrorOutline,
     val confirmButton: InstallerStatusDialogButton = installerStatusDialogButton(R.string.ok),
     val dismissButton: InstallerStatusDialogButton? = null,

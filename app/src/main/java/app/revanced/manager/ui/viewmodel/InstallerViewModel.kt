@@ -68,13 +68,9 @@ class InstallerViewModel(
     val installerStatusDialogModel = object : InstallerStatusDialogModel {
         override var packageInstallerResult by mutableStateOf<PackageInstallerResult?>(null)
 
-        override fun reinstall() {
-            this@InstallerViewModel.reinstall()
-        }
+        override fun reinstall() = this@InstallerViewModel.reinstall()
 
-        override fun install() {
-            install(InstallType.DEFAULT) // Always default for now.
-        }
+        override fun install() = install(InstallType.DEFAULT) // Always default for now.
     }
 
     val packageName: String = input.selectedApp.packageName
